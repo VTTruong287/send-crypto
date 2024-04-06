@@ -1,11 +1,8 @@
 import path from "path";
-import async from "async";
 
-import { SepoliaETH, ARB } from "./consts/networks";
-import { ProcessStatusEnum } from "./models/row";
-import { MAX_RETRY_LIMIT, TransactionReceiptStatus } from "./consts/config";
+import { SepoliaETH } from "./consts/networks";
+import { Blockchain, SpreadSheet } from "./controllers";
 import RowJob from "./models/rowJob";
-import { SpreadSheet, Blockchain } from "./controllers";
 
 import "dotenv/config";
 
@@ -44,15 +41,15 @@ const main = async () => {
     rowJobs.push(new RowJob(spreadSheet.rows[i], blockchain, i, spreadSheet.rows.length))
   }
 
-  await async.parallelLimit(rowJobs.map((rowJob: RowJob) => {
-    return async () => {
-      await rowJob.process();
-    }
-  }), 10)
+  // await async.parallelLimit(rowJobs.map((rowJob: RowJob) => {
+  //   return async () => {
+  //     await rowJob.process();
+  //   }
+  // }), 10)
 
-  // for (let rowJob of rowJobs) {
-  //   await rowJob.process();
-  // }
+  for (let rowJob of rowJobs) {
+    await rowJob.process();
+  }
 
   await spreadSheet.export();
 };

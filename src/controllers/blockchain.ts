@@ -1,5 +1,6 @@
-import { Network } from "@src/consts/networks";
 import Web3, { Transaction } from "web3";
+
+import { Network } from "@src/consts/networks";
 
 export default class Blockchain {
   public provider: Web3;
@@ -43,7 +44,7 @@ export default class Blockchain {
     }
     */
     try {
-      var count = (await this.provider.eth.getTransactionCount(fromAddress)) + BigInt(increament);
+      // var count = (await this.provider.eth.getTransactionCount(fromAddress)) + BigInt(increament);
       const privateKeyBuffer = Buffer.from(privateKey, 'hex');
       const amountToSend = this.provider.utils.toWei(amount, "ether");
       const gas = 21000; // Gas limit
@@ -54,7 +55,7 @@ export default class Blockchain {
         value: amountToSend,
         gasLimit: gas,
         gasPrice: gasPrice,
-        nonce: Web3.utils.toHex(count)
+        // nonce: Web3.utils.toHex(count)
       };
       console.log('txObject: ', txObject);
 

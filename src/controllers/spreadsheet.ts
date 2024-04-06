@@ -1,7 +1,7 @@
-import { ProcessStatusEnum, Row } from "@src/models/row";
 import fs from "fs";
 import os from "os";
-import path from "path";
+
+import { ProcessStatusEnum, Row } from "@src/models/row";
 
 export default class SpreadSheet {
   public rows: Row[];

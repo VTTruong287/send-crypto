@@ -17,6 +17,10 @@ export default class RowJob {
     this.range = range;
   }
 
+  /**
+   * process
+   * @returns 
+   */
   public async process() {
     while (this.retry < MAX_RETRY_LIMIT && this.row.status == ProcessStatusEnum.NONE) {
       console.log('--- process: ', this.row.address, this.retry);
@@ -36,11 +40,11 @@ export default class RowJob {
       this.retry++;
       this.increament += this.range * this.retry;
 
-      await new Promise((resolve, reject) =>
-        setTimeout(() => {
-          resolve(null);
-        }, 1000)
-      );
+      // await new Promise((resolve, reject) =>
+      //   setTimeout(() => {
+      //     resolve(null);
+      //   }, 500)
+      // );
     }
   }
 }
