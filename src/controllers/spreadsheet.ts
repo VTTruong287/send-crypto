@@ -16,6 +16,10 @@ export default class SpreadSheet {
     this.outFileName = outFileName;
   }
 
+  /**
+   * getData
+   * Get data from csv file with initialize input path
+   */
   public async getData() {
     try {
       // Get data from file Path
@@ -50,8 +54,11 @@ export default class SpreadSheet {
     }
   }
 
+  /**
+   * export
+   * Write result after process to csv file
+   */
   public async export() {
-    // Export rows
     if (!!this.rows) {
       let csvRows = [];
       csvRows.push("Amount,Address,Transaction Id,Status");

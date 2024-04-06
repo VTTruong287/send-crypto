@@ -10,14 +10,16 @@ import { SpreadSheet, Blockchain } from "./controllers";
 import "dotenv/config";
 
 const main = async () => {
-  console.log("Hello World! ", process.env.PRIVATE_KEY);
+  const fromAddress = process.env.FROM_ADDRESS;
+  const privateKey = process.env.PRIVATE_KEY
+  console.log("Hello World! ");
 
   const spreadSheet = new SpreadSheet(
     path.join(__dirname, "input/send.csv"), 
     path.join(__dirname, "output"), 
     "rs.csv"
   );
-  const blockchain = new Blockchain(SepoliaETH, process.env.PRIVATE_KEY);
+  const blockchain = new Blockchain(SepoliaETH, privateKey);
   const rowJobs: RowJob[] = [];
 
   await spreadSheet.getData();
@@ -38,8 +40,8 @@ const main = async () => {
   //     row.retry++;
   //   }
   // }
-  for (let row of spreadSheet.rows) {
-    rowJobs.push(new RowJob(row, blockchain))
+  for (let i = 0; i < spreadSheet.rows.length; i++) {
+    rowJobs.push(new RowJob(spreadSheet.rows[i], blockchain, i, spreadSheet.rows.length))
   }
 
   await async.parallelLimit(rowJobs.map((rowJob: RowJob) => {
@@ -47,6 +49,10 @@ const main = async () => {
       await rowJob.process();
     }
   }), 10)
+
+  // for (let rowJob of rowJobs) {
+  //   await rowJob.process();
+  // }
 
   await spreadSheet.export();
 };

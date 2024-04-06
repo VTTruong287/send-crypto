@@ -5,18 +5,26 @@ export default class Blockchain {
   public provider: Web3;
   public network: Network;
   public currentNetworkIdx: number;
+  public nonce: bigint;
 
   constructor(network: Network, privateKey: string) {
     this.network = network;
     // FetchError: invalid json response body at https://sepolia.infura.io/v3/ reason: Unexpected token 'p', "project id"... is not valid JSON
     this.currentNetworkIdx = 0;
+    this.nonce = 0n;
     this.provider = new Web3(network.RPCs[this.currentNetworkIdx]);
-
-    // const privateKeyBuffer = Buffer.from(privateKey, 'hex');
-    // this.provider.eth.accounts.wallet.add(privateKeyBuffer);
   }
 
-  public async send(fromAddress: string, toAddress: string, amount: string, privateKey: string) {
+  /**
+   * sendNativeCoin
+   * @param fromAddress 
+   * @param toAddress 
+   * @param amount 
+   * @param privateKey 
+   * @param increament 
+   * @returns 
+   */
+  public async sendNativeCoin(fromAddress: string, toAddress: string, amount: string, privateKey: string, increament: number) {
     /*
     Transaction receipt: {
       blockHash: '0x2324b73b4faa3a498daa19a313aafdd8f7456082395c3fe81c34104f444002a3',
@@ -35,6 +43,7 @@ export default class Blockchain {
     }
     */
     try {
+      var count = (await this.provider.eth.getTransactionCount(fromAddress)) + BigInt(increament);
       const privateKeyBuffer = Buffer.from(privateKey, 'hex');
       const amountToSend = this.provider.utils.toWei(amount, "ether");
       const gas = 21000; // Gas limit
@@ -43,10 +52,12 @@ export default class Blockchain {
         from: fromAddress,
         to: toAddress,
         value: amountToSend,
-        // gas: gas,
         gasLimit: gas,
         gasPrice: gasPrice,
+        nonce: Web3.utils.toHex(count)
       };
+      console.log('txObject: ', txObject);
+
       const signedTx = await this.provider.eth.accounts.signTransaction(txObject, privateKeyBuffer);
       const receipt = await this.provider.eth.sendSignedTransaction(signedTx.rawTransaction);
 

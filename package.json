@@ -2,7 +2,7 @@
   "name": "send-crypto-money",
   "version": "1.0.0",
   "scripts": {
-    "dev": "ts-node -r tsconfig-paths/register src/index",
+    "dev": "ts-node -r tsconfig-paths/register src/index"
   },
   "keywords": [],
   "author": "",
