@@ -1,4 +1,4 @@
-import Web3, { Transaction } from "web3";
+import Web3, { Transaction, TransactionReceipt } from "web3";
 
 import { Network } from "@src/consts/networks";
 
@@ -25,7 +25,10 @@ export default class Blockchain {
    * @param increament 
    * @returns 
    */
-  public async sendNativeCoin(fromAddress: string, toAddress: string, amount: string, privateKey: string, increament: number) {
+  public async sendNativeCoin(fromAddress: string, toAddress: string, amount: string, privateKey: string, increament: number): Promise<{
+    rs: TransactionReceipt,
+    errorMsg: string
+  }> {
     /*
     Transaction receipt: {
       blockHash: '0x2324b73b4faa3a498daa19a313aafdd8f7456082395c3fe81c34104f444002a3',
@@ -63,10 +66,16 @@ export default class Blockchain {
       const receipt = await this.provider.eth.sendSignedTransaction(signedTx.rawTransaction);
 
       console.log('Transaction receipt:', receipt);
-      return receipt;
+      return {
+        rs: receipt,
+        errorMsg: null
+      };
     } catch (error) {
       console.log('ERR - send: ', error);
-      return null;
+      return {
+        rs: null,
+        errorMsg: `Code: ${error.code} - Content: ${error.message}`
+      };
     }
   }
 }

@@ -36,14 +36,16 @@ export default class SpreadSheet {
             amount: columns[0]?.trim(),
             address: columns[1]?.trim(),
             transactionId: "",
-            status: ProcessStatusEnum.NONE
+            status: ProcessStatusEnum.NONE,
+            errorMsg: ""
           })
         } catch (error) {
           this.rows.push({
             amount: columns[0],
             address: columns[1],
             transactionId: "",
-            status: ProcessStatusEnum.FAIL
+            status: ProcessStatusEnum.FAIL,
+            errorMsg: ""
           })
         }
       })
@@ -61,9 +63,9 @@ export default class SpreadSheet {
   public async export() {
     if (!!this.rows) {
       let csvRows = [];
-      csvRows.push("Amount,Address,Transaction Id,Status");
+      csvRows.push("Amount,Address,Transaction Id,Status, Error message");
       this.rows.forEach((row, idx) => {
-        csvRows.push([row.amount, row.address, row.transactionId, row.status].join(","));
+        csvRows.push([row.amount, row.address, row.transactionId, row.status, row.errorMsg].join(","));
       });
 
       if (!fs.existsSync(this.outFileDirectory)) {

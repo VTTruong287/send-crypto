@@ -9,4 +9,5 @@ export class Row {
   public amount: string;
   public transactionId: string;
   public status: ProcessStatusEnum;
+  public errorMsg: string;
 }

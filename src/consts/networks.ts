@@ -12,14 +12,14 @@ export const ARB: Network = {
   chainIdHex: "0xa4b1",
   nativeCoin: "ETH",
   RPCs: [
-    "https://arbitrum-mainnet.infura.io",
+    "wss://arbitrum-one.publicnode.com",
     "https://arb1.arbitrum.io/rpc",
     "https://1rpc.io/arb",
     "https://public.stackup.sh/api/v1/node/arbitrum-one",
     "https://arb-mainnet-public.unifra.io",
     "https://arbitrum-one.publicnode.com",
     "https://arbitrum-one-rpc.publicnode.com",
-    "wss://arbitrum-one.publicnode.com",
+    "https://arbitrum-mainnet.infura.io",
   ],
 };
 

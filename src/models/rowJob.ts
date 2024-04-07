@@ -24,14 +24,17 @@ export default class RowJob {
   public async process() {
     while (this.retry < MAX_RETRY_LIMIT && this.row.status == ProcessStatusEnum.NONE) {
       console.log('--- process: ', this.row.address, this.retry);
-      const receipt = await this.blockchain.sendNativeCoin(process.env.FROM_ADDRESS, this.row.address, this.row.amount, process.env.PRIVATE_KEY, this.increament);
-      if (receipt?.status) {
-        this.row.transactionId = receipt.transactionHash.toString();
+      const data = await this.blockchain.sendNativeCoin(process.env.FROM_ADDRESS, this.row.address, this.row.amount, process.env.PRIVATE_KEY, this.increament);
+      if (data?.rs?.status) {
+        this.row.transactionId = data.rs.transactionHash.toString();
 
-        if (receipt.status == TransactionReceiptStatus.SUCCESS) {
+        if (data.rs.status == TransactionReceiptStatus.SUCCESS) {
+          this.row.errorMsg = "";
           this.row.status = ProcessStatusEnum.SUCCESS;
           return;
         }
+      } else if (data?.errorMsg) {
+        this.row.errorMsg = data.errorMsg
       }
       if (this.retry >= MAX_RETRY_LIMIT - 1 ) {
         this.row.status = ProcessStatusEnum.FAIL;
