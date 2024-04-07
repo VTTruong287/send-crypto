@@ -58,7 +58,7 @@ export default class Blockchain {
         to: toAddress,
         value: amountToSend,
         gasLimit: gas,
-        gasPrice: gasPrice,
+        gasPrice: (gasPrice * 110n / 100n),
         nonce: Web3.utils.toHex(count)
       };
       console.log('txObject: ', txObject);

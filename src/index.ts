@@ -11,7 +11,11 @@ import "dotenv/config";
 const main = async () => {
   const fromAddress = process.env.FROM_ADDRESS;
   const privateKey = process.env.PRIVATE_KEY
-  console.log("Hello World! ");
+  console.log("Send crypto - Start ");
+
+  if (!fromAddress || !privateKey) {
+    throw("From address and private key can not be empty")
+  }
 
   const spreadSheet = new SpreadSheet(
     path.join(__dirname, "input/send.csv"), 
