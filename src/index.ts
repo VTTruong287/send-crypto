@@ -1,7 +1,7 @@
 import path from "path";
 import async from "async";
 
-import { SepoliaETH } from "./consts/networks";
+import { ARB, SepoliaETH } from "./consts/networks";
 import { Blockchain, SpreadSheet } from "./controllers";
 import RowJob from "./models/rowJob";
 import { MAX_RETRY_LIMIT, MAX_ROW_PER_JOB } from "./consts/config";
@@ -10,11 +10,12 @@ import "dotenv/config";
 
 const main = async () => {
   const fromAddress = process.env.FROM_ADDRESS;
-  const privateKey = process.env.PRIVATE_KEY
-  console.log("Send crypto - Start ");
+  const privateKey = process.env.PRIVATE_KEY;
+  const network = !!process.env.TEST_MODE ? SepoliaETH : ARB
+  console.log(" ********** Send crypto - Start ", network);
 
-  if (!fromAddress || !privateKey) {
-    throw("From address and private key can not be empty")
+  if (!fromAddress || !privateKey || !network) {
+    throw("From address, private key, network can not be empty")
   }
 
   const spreadSheet = new SpreadSheet(
@@ -22,7 +23,7 @@ const main = async () => {
     path.join(__dirname, "output"), 
     "rs.csv"
   );
-  const blockchain = new Blockchain(SepoliaETH, privateKey);
+  const blockchain = new Blockchain(network, privateKey);
   const rowJobs: RowJob[] = [];
 
   await spreadSheet.getData();
