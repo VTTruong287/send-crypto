@@ -16,6 +16,10 @@ export default class Blockchain {
     this.provider = new Web3(network.RPCs[this.currentNetworkIdx]);
   }
 
+  public async getNonce(fromAddress: string) {
+    this.nonce = await this.provider.eth.getTransactionCount(fromAddress)
+  }
+
   /**
    * sendNativeCoin
    * @param fromAddress 
@@ -44,7 +48,7 @@ export default class Blockchain {
     }
     */
     try {
-      // var count = (await this.provider.eth.getTransactionCount(fromAddress)) + BigInt(increament);
+      var count = (this.nonce) + BigInt(increament);
       const privateKeyBuffer = Buffer.from(privateKey, 'hex');
       const amountToSend = this.provider.utils.toWei(amount, "ether");
       const gas = 21000; // Gas limit
@@ -55,7 +59,7 @@ export default class Blockchain {
         value: amountToSend,
         gasLimit: gas,
         gasPrice: gasPrice,
-        // nonce: Web3.utils.toHex(count)
+        nonce: Web3.utils.toHex(count)
       };
       console.log('txObject: ', txObject);
 

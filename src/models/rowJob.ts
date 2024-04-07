@@ -1,17 +1,18 @@
-import { MAX_RETRY_LIMIT, TransactionReceiptStatus } from "@src/consts/config";
+import { MAX_RETRY_LIMIT, MAX_ROW_PER_JOB, TransactionReceiptStatus } from "@src/consts/config";
 import { ProcessStatusEnum, Row } from "./row";
 import { Blockchain } from "@src/controllers";
+import async from "async";
 
 export default class RowJob {
   public retry: number;
-  public row: Row;
+  public rows: Row[];
   public blockchain: Blockchain;
   public increament: number;
   public range: number;
 
-  constructor(row: Row, blockchain: Blockchain, increament: number, range: number) {
+  constructor(rows: Row[], blockchain: Blockchain, increament: number, range: number) {
     this.retry = 0;
-    this.row = row;
+    this.rows = rows;
     this.blockchain = blockchain;
     this.increament = increament;
     this.range = range;
@@ -19,32 +20,39 @@ export default class RowJob {
 
   /**
    * process
-   * @returns 
+   * @returns
    */
-  public async process() {
-    while (this.retry < MAX_RETRY_LIMIT && this.row.status == ProcessStatusEnum.NONE) {
-      console.log('--- process: ', this.row.address, this.retry);
-      const receipt = await this.blockchain.sendNativeCoin(process.env.FROM_ADDRESS, this.row.address, this.row.amount, process.env.PRIVATE_KEY, this.increament);
-      if (receipt?.status) {
-        this.row.transactionId = receipt.transactionHash.toString();
+  public async process(fromAddress: string) {
+    await this.blockchain.getNonce(fromAddress);
 
-        if (receipt.status == TransactionReceiptStatus.SUCCESS) {
-          this.row.status = ProcessStatusEnum.SUCCESS;
-          return;
-        }
-      }
-      if (this.retry >= MAX_RETRY_LIMIT - 1 ) {
-        this.row.status = ProcessStatusEnum.FAIL;
-        return;
-      }
-      this.retry++;
-      this.increament += this.range * this.retry;
-
-      // await new Promise((resolve, reject) =>
-      //   setTimeout(() => {
-      //     resolve(null);
-      //   }, 500)
-      // );
-    }
+    await async.parallelLimit(
+      this.rows.map((row, idx) => {
+        return async () => {
+          if (row.status == ProcessStatusEnum.NONE) {
+            console.log("--- process: ", row.address, this.retry);
+            const receipt = await this.blockchain.sendNativeCoin(
+              process.env.FROM_ADDRESS,
+              row.address,
+              row.amount,
+              process.env.PRIVATE_KEY,
+              this.increament + idx
+            );
+            if (receipt?.status) {
+              row.transactionId = receipt.transactionHash.toString();
+    
+              if (receipt.status == TransactionReceiptStatus.SUCCESS) {
+                row.status = ProcessStatusEnum.SUCCESS;
+                return;
+              }
+            }
+            if (this.retry >= MAX_RETRY_LIMIT - 1) {
+              row.status = ProcessStatusEnum.FAIL;
+              return;
+            }
+            this.retry++;
+          }
+        };
+      }), MAX_ROW_PER_JOB
+    );
   }
 }

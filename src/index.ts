@@ -1,8 +1,10 @@
 import path from "path";
+import async from "async";
 
 import { SepoliaETH } from "./consts/networks";
 import { Blockchain, SpreadSheet } from "./controllers";
 import RowJob from "./models/rowJob";
+import { MAX_RETRY_LIMIT, MAX_ROW_PER_JOB } from "./consts/config";
 
 import "dotenv/config";
 
@@ -21,34 +23,21 @@ const main = async () => {
 
   await spreadSheet.getData();
 
-  // for (let row of spreadSheet.rows) {
-  //   while (row.retry < MAX_RETRY_LIMIT && row.status == ProcessStatusEnum.NONE) {
-  //     const receipt = await blockchain.send(process.env.FROM_ADDRESS, row.address, row.amount, process.env.PRIVATE_KEY);
-  //     if (receipt?.status) {
-  //       row.transactionId = receipt.transactionHash.toString();
-
-  //       if (receipt.status == TransactionReceiptStatus.SUCCESS) {
-  //         row.status = ProcessStatusEnum.SUCCESS;
-  //       }
-  //     }
-  //     if (row.retry >= MAX_RETRY_LIMIT - 1 ) {
-  //       row.status = ProcessStatusEnum.FAIL;
-  //     }
-  //     row.retry++;
-  //   }
-  // }
-  for (let i = 0; i < spreadSheet.rows.length; i++) {
-    rowJobs.push(new RowJob(spreadSheet.rows[i], blockchain, i, spreadSheet.rows.length))
+  for (let i = 0; i < spreadSheet.rows.length; i = i + MAX_ROW_PER_JOB) {
+    const rows = spreadSheet.rows.slice(i, i + MAX_ROW_PER_JOB);
+    rowJobs.push(new RowJob(rows, blockchain, i, spreadSheet.rows.length));
   }
 
   // await async.parallelLimit(rowJobs.map((rowJob: RowJob) => {
   //   return async () => {
-  //     await rowJob.process();
+  //     await rowJob.process(fromAddress);
   //   }
-  // }), 10)
+  // }), 3)
 
-  for (let rowJob of rowJobs) {
-    await rowJob.process();
+  for (let i = 0; i < MAX_RETRY_LIMIT; i++) {
+    for (let rowJob of rowJobs) {
+      await rowJob.process(fromAddress);
+    }
   }
 
   await spreadSheet.export();
