@@ -50,14 +50,14 @@ export default class Blockchain {
       // var count = (await this.provider.eth.getTransactionCount(fromAddress)) + BigInt(increament);
       const privateKeyBuffer = Buffer.from(privateKey, 'hex');
       const amountToSend = this.provider.utils.toWei(amount, "ether");
-      const gas = 21000; // Gas limit
+      const gas = 84000; // Gas limit
       const gasPrice = await this.provider.eth.getGasPrice();
       const txObject: Transaction = {
         from: fromAddress,
         to: toAddress,
         value: amountToSend,
-        gasLimit: gas,
-        gasPrice: gasPrice,
+        gasLimit: this.provider.utils.toHex(gas),
+        gasPrice: this.provider.utils.toHex(gasPrice + 1000000n),
         // nonce: Web3.utils.toHex(count)
       };
       console.log('txObject: ', txObject);
